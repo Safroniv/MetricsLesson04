@@ -11,46 +11,46 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace MetricsAgent.Controllers
 {
-    [Route("api/metrics/cpu")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class CpuMetricsController : ControllerBase
+    public class RamMetricsController : ControllerBase
     {
         #region Services
-        private readonly ILogger<CpuMetricsController> _logger;
-        private readonly ICpuMetricsRepository _cpuMetricsRepository;
+        private readonly ILogger<RamMetricsController> _logger;
+        private readonly IRamMetricsRepository _ramMetricsRepository;
         private readonly IMapper _mapper;
         #endregion
 
-        public CpuMetricsController(
-            ICpuMetricsRepository cpuMetricsRepository,
-            ILogger<CpuMetricsController> logger,
+        public RamMetricsController(
+            IRamMetricsRepository ramMetricsRepository,
+            ILogger<RamMetricsController> logger,
             IMapper mapper)
         {
-            _cpuMetricsRepository = cpuMetricsRepository;
+            _ramMetricsRepository = ramMetricsRepository;
             _logger = logger;
             _mapper = mapper;
         }
 
         [HttpPost("create")]
-        public IActionResult Create([FromBody] CpuMetricCreateRequest request)
+        public IActionResult Create([FromBody] RamMetricCreateRequest request)
         {
-            _cpuMetricsRepository.Create(_mapper.Map<CpuMetric>(request));
+            _ramMetricsRepository.Create(_mapper.Map<RamMetric>(request));
             return Ok();
         }
 
         /// <summary>
-        /// Получить статистику по нагрузке на ЦП за период
+        /// Получить статистику по нагрузке на сеть за период
         /// </summary>
         /// <param name="fromTime">Время начала периода</param>
         /// <param name="toTime">Время окончания периода</param>
         /// <returns></returns>
         [HttpGet("from/{fromTime}/to/{toTime}")]
-        public ActionResult<IList<CpuMetricDto>> GetCpuMetrics(
+        public ActionResult<IList<RamMetricDto>> GetRamMetrics(
             [FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
         {
-            _logger.LogInformation("Get cpu metrics call.");
-            return Ok(_cpuMetricsRepository.GetByTimePeriod(fromTime, toTime)
-                .Select(metric => _mapper.Map<CpuMetricDto>(metric)).ToList());
+            _logger.LogInformation("Get ram metrics call.");
+            return Ok(_ramMetricsRepository.GetByTimePeriod(fromTime, toTime)
+                .Select(metric => _mapper.Map<RamMetricDto>(metric)).ToList());
         }
     }
 }

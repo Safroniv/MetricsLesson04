@@ -15,6 +15,10 @@ namespace MetricsAgent
     {
         public static void Main(string[] args)
         {
+
+            //1.Перепишите все репозитории в приложении сбора метрик и в приложении менеджере метрик на использование Dapper вместо сырого чтения данных
+            //2.Настройте AutoMapper для всех остальных объектов в приложениях
+
             var builder = WebApplication.CreateBuilder(args);
 
             #region Configure Automapper
@@ -35,15 +39,18 @@ namespace MetricsAgent
 
             #endregion
 
-            #region Configure Repository
-
-            builder.Services.AddScoped<ICpuMetricsRepository, CpuMetricsRepository>();
-
-            #endregion
-
             #region Configure Database
 
             //ConfigureSqlLiteConnection(builder);
+
+            #endregion
+
+            #region Configure Repository
+
+            builder.Services.AddScoped<ICpuMetricsRepository, CpuMetricsRepository>();
+            builder.Services.AddScoped<IHddMetricsRepository, HddMetricsRepository>();
+            builder.Services.AddScoped<INetworkMetricsRepository, NetworkMetricsRepository>();
+            builder.Services.AddScoped<IRamMetricsRepository, RamMetricsRepository>();
 
             #endregion
 
@@ -121,10 +128,34 @@ namespace MetricsAgent
                 // Задаём новый текст команды для выполнения
                 // Удаляем таблицу с метриками, если она есть в базе данных
                 command.CommandText = "DROP TABLE IF EXISTS cpumetrics";
-                // Отправляем запрос в базу данных
                 command.ExecuteNonQuery();
+                command.CommandText = "DROP TABLE IF EXISTS hddmetrics";
+                command.ExecuteNonQuery();
+                command.CommandText = "DROP TABLE IF EXISTS networkmetrics";
+                command.ExecuteNonQuery();
+                command.CommandText = "DROP TABLE IF EXISTS rammetrics";
+                command.ExecuteNonQuery();
+
                 command.CommandText =
                     @"CREATE TABLE cpumetrics(id INTEGER
+                    PRIMARY KEY,
+                    value INT, time INT)";
+                command.ExecuteNonQuery();
+
+                command.CommandText =
+                    @"CREATE TABLE hddmetrics(id INTEGER
+                    PRIMARY KEY,
+                    value INT, time INT)";
+                command.ExecuteNonQuery();
+
+                command.CommandText =
+                    @"CREATE TABLE networkmetrics(id INTEGER
+                    PRIMARY KEY,
+                    value INT, time INT)";
+                command.ExecuteNonQuery();
+
+                command.CommandText =
+                    @"CREATE TABLE rammetrics(id INTEGER
                     PRIMARY KEY,
                     value INT, time INT)";
                 command.ExecuteNonQuery();

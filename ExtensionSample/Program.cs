@@ -11,6 +11,11 @@ namespace ExtensionSample
             List<int> res = list.FindAll(i => i % 2 == 0);
 
             List<int> res2 = list.GetEvenNumbers();
+
+            foreach (int i in res2)
+            {
+                Console.Write(i + " ");
+            }
         }
     }
 }
